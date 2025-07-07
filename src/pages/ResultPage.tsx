@@ -1,0 +1,157 @@
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Radar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
+
+const ResultPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { scores, categories } = location.state || { scores: [], categories: [] };
+
+  const aggregateScores: { [category: string]: number[] } = {};
+  categories.forEach((cat: string, i: number) => {
+    if (!aggregateScores[cat]) aggregateScores[cat] = [];
+    aggregateScores[cat].push(scores[i]);
+  });
+
+  const dimensionLabels = ['Ingredients', 'Visual Appearance', 'Cultural & Local Experiences', 'Servicescape'];
+  const dimensionScores = dimensionLabels.map(label => {
+    const items = aggregateScores[label] || [];
+    return items.length > 0 ? (items.reduce((a, b) => a + b, 0) / items.length) : 0;
+  });
+
+  const getCustomerProfile = () => {
+    const high = dimensionScores.filter(score => score > 6).length;
+    const mid = dimensionScores.filter(score => score >= 5 && score <= 6).length;
+    const low = dimensionScores.filter(score => score < 5).length;
+  
+    if (high >= 2) return 'Cultural Food Traveler';
+    if (mid >= 2) return 'Food-Driven Traveler';
+    return 'Leisure Traveler';
+  };
+  
+
+  const customerProfile = getCustomerProfile();
+
+  const profileDescriptions: { [key: string]: string } = {
+    'Cultural Food Traveler': 'Seeks deep cultural immersion through food and authenticity.',
+    'Food-Driven Traveler': 'Prioritizes exceptional culinary experiences and quality.',
+    'Leisure Traveler': 'Enjoys relaxed, comfortable environments with familiar food.'
+  };
+
+  return (
+    <div style={{ background: '#fafafa', minHeight: '100vh', padding: '80px 5vw 80px 5vw', fontFamily: 'system-ui' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center', position: 'relative' }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            backgroundColor: '#910811',
+            color: 'white',
+            border: 'none',
+            borderRadius: '25px',
+            padding: '10px 24px',
+            fontWeight: 'bold',
+            fontSize: '0.9rem',
+            letterSpacing: '1px',
+            cursor: 'pointer'
+          }}
+        >
+          BACK
+        </button>
+
+        <img src="/logo_R.png" alt="Logo" style={{ width: '100px', marginTop: '10px', marginBottom: '10px' }} />
+
+        <div style={{ padding: '16px', background: 'white', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
+
+          <h2 style={{ fontSize: '1.3rem', color: '#111', fontWeight: 700, margin: '0 0 4px 0' }}>Customer Profile Match</h2>
+          <p style={{ fontSize: '0.95rem', color: '#444', margin: 0 }}>Your restaurant best appeals to</p>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#d62e2e', margin: '6px 0' }}>{customerProfile}</h3>
+          <p style={{ fontSize: '0.95rem', color: '#555', margin: 0 }}>{profileDescriptions[customerProfile]}</p>
+        </div>
+
+        <div style={{ width: '100%', maxWidth: '420px', height: '260px', margin: '0 auto 16px' }}>
+          <Radar
+            data={{
+              labels: dimensionLabels,
+              datasets: [
+                {
+                  label: 'Authenticity Dimensions',
+                  data: dimensionScores,
+                  backgroundColor: 'rgba(145, 8, 17, 0.3)',
+                  borderColor: '#910811',
+                  borderWidth: 1,
+                  pointBackgroundColor: '#910811'
+                }
+              ]
+            }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              layout: { padding: 30 },
+              scales: {
+                r: {
+                  beginAtZero: true,
+                  min: 1,
+                  max: 7,
+                  ticks: {
+                    stepSize: 1,
+                    color: '#444'
+                  },
+                  pointLabels: {
+                    font: { size: 12 },
+                    color: '#333',
+                    padding: 16
+                  }
+                }
+              },
+              plugins: { legend: { display: false } }
+            }}
+          />
+        </div>
+
+        <button
+          onClick={() => navigate('/guidelines', { state: { customerProfile } })
+        }
+          style={{
+            background: '#910811',
+            color: 'white',
+            border: 'none',
+            borderRadius: '15px',
+            padding: '12px 24px',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            width: '100%',
+            maxWidth: '420px',
+            margin: '0 auto 8px'
+          }}
+        >
+          View Improvement Guidelines
+        </button>
+
+      </div>
+    </div>
+  );
+};
+
+export default ResultPage;

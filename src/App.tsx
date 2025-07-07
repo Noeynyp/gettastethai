@@ -1,0 +1,55 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import WelcomePage from './pages/WelcomePage';
+import AssessmentPage from './pages/AssessmentPage';
+import ResultPage from './pages/ResultPage';
+import GuidelinePage from './pages/GuidelinePage';
+
+const theme = createTheme({
+  palette: {
+    primary: { main: '#910811' }, // Updated GET TASTE THAI Red
+       // GET TASTE THAI Red
+    secondary: { main: '#059669' },     // Thai Green
+    warning: { main: '#F59E0B' },       // Thai Gold
+    info: { main: '#D97706' },          // Thai Orange
+    background: { default: '#fff' },
+  },
+  typography: {
+    fontFamily: ['Inter', 'Noto Sans Thai', 'sans-serif'].join(','),
+  },
+  shape: { borderRadius: 8 },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          margin: 0,
+          padding: 0,
+          boxSizing: 'border-box',
+          maxWidth: '100vw',
+          overflowX: 'hidden',
+        },
+      },
+    },
+  },
+});
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router basename="/get-authentic-thai-mvp">
+        <div style={{ width: '100%', minHeight: '100vh' }}>
+          <Routes>
+            <Route path="/" element={<WelcomePage />} />
+            <Route path="/assessment" element={<AssessmentPage />} />
+            <Route path="/result" element={<ResultPage />} />
+            <Route path="/guidelines" element={<GuidelinePage />} />
+          </Routes>
+        </div>
+      </Router>
+    </ThemeProvider>
+  );
+}
+
+export default App;
