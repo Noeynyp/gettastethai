@@ -37,16 +37,49 @@ const ResultPage = () => {
     return items.length > 0 ? (items.reduce((a, b) => a + b, 0) / items.length) : 0;
   });
 
+  // const getCustomerProfile = () => {
+  //   const high = dimensionScores.filter(score => score > 6).length;
+  //   const mid = dimensionScores.filter(score => score >= 5 && score <= 6).length; 
+  //   const low = dimensionScores.filter(score => score < 5).length;
+  
+  //   if (high >= 2) return 'Cultural Food Traveler';
+  //   if (mid >= 2) return 'Food-Driven Traveler';
+  //   return 'Leisure Traveler';
+  // };
+  
   const getCustomerProfile = () => {
-    const high = dimensionScores.filter(score => score > 6).length;
-    const mid = dimensionScores.filter(score => score >= 5 && score <= 6).length;
-    const low = dimensionScores.filter(score => score < 5).length;
-  
-    if (high >= 2) return 'Cultural Food Traveler';
-    if (mid >= 2) return 'Food-Driven Traveler';
-    return 'Leisure Traveler';
+    const typeCount = {
+      'Leisure Traveler': 0,
+      'Food-Driven Traveler': 0,
+      'Cultural Food Traveler': 0
+    };
+
+    const thresholds = [
+      // [low, mid, high]
+      { leisure: [5.78, 5.96], food: [0, 5.78], cultural: [5.96, 7] }, // ING
+      { leisure: [0, 5.65], food: [5.65, 5.82], cultural: [5.82, 7] }, // VIA
+      { leisure: [0, 5.68], food: [5.68, 5.89], cultural: [5.89, 7] }, // CLE
+      { leisure: [0, 5.44], food: [5.44, 5.88], cultural: [5.88, 7] }  // SSC
+    ];
+
+    dimensionScores.forEach((score, i) => {
+      const t = thresholds[i];
+      if (score < t.leisure[1]) typeCount['Leisure Traveler'] += 1;
+      else if (score < t.food[1]) typeCount['Food-Driven Traveler'] += 1;
+      else typeCount['Cultural Food Traveler'] += 1;
+    });
+
+    const maxCount = Math.max(...Object.values(typeCount));
+    const candidates = Object.keys(typeCount).filter(type => typeCount[type] === maxCount);
+
+    if (candidates.length === 1) return candidates[0];
+
+    // Tie-breaker: use ATT_AVG
+    const attAvg = dimensionScores.reduce((a, b) => a + b, 0) / 4;
+    if (attAvg > 6.04) return 'Cultural Food Traveler';
+    if (attAvg >= 5.84) return 'Leisure Traveler';
+    return 'Food-Driven Traveler';
   };
-  
 
   const customerProfile = getCustomerProfile();
 
