@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Radar } from 'react-chartjs-2';
 import {
@@ -48,11 +47,12 @@ const ResultPage = () => {
   // };
   
   const getCustomerProfile = () => {
-    const typeCount = {
+    const typeCount: Record<string, number> = {
       'Leisure Traveler': 0,
       'Food-Driven Traveler': 0,
       'Cultural Food Traveler': 0
     };
+
 
     const thresholds = [
       // [low, mid, high]
@@ -89,8 +89,17 @@ const ResultPage = () => {
     'Leisure Traveler': 'Enjoys relaxed, comfortable environments with familiar food.'
   };
 
+  const travelerImages: { [key: string]: string[] } = {
+    'Leisure Traveler': ['/leisure1.png', '/leisure2.png'],
+    'Food-Driven Traveler': ['/food1.png', '/food2.png'],
+    'Cultural Food Traveler': ['/cultural1.png', '/cultural2.png']
+  };
+
+  const selectedImages = travelerImages[customerProfile] || [];
+
+
   return (
-    <div style={{ background: '#fafafa', minHeight: '100vh', padding: '80px 5vw 80px 5vw', fontFamily: 'system-ui' }}>
+    <div style={{ background: '#fafafa', minHeight: '100vh', padding: '80px 5vw 80px 5vw', fontFamily: 'system-ui', overflow: 'hidden', }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center', position: 'relative' }}>
         <button
           onClick={() => navigate(-1)}
@@ -112,14 +121,53 @@ const ResultPage = () => {
           BACK
         </button>
 
-        <img src="/logo_R.png" alt="Logo" style={{ width: '100px', marginTop: '10px', marginBottom: '10px' }} />
+        <img
+          src="/logo_R.png"
+          alt="Logo"
+          style={{
+            width: 'clamp(120px, 25vw, 200px)',
+            maxWidth: '100%',
+            height: 'auto',
+            marginTop: '10px',
+            marginBottom: '10px'
+          }}
+        />
 
-        <div style={{ padding: '16px', background: 'white', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
 
-          <h2 style={{ fontSize: '1.3rem', color: '#111', fontWeight: 700, margin: '0 0 4px 0' }}>Customer Profile Match</h2>
-          <p style={{ fontSize: '0.95rem', color: '#444', margin: 0 }}>Your restaurant best appeals to</p>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#d62e2e', margin: '6px 0' }}>{customerProfile}</h3>
-          <p style={{ fontSize: '0.95rem', color: '#555', margin: 0 }}>{profileDescriptions[customerProfile]}</p>
+        <div style={{ padding: '16px', borderRadius: '20px', marginBottom: '20px' }}>
+
+
+          <h2 style={{ fontSize: '1.3rem', color: '#111', fontWeight: 700, margin: '0 0 4px 0' }}>Customer Profile</h2>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', margin: '16px 0' }}>
+            {selectedImages.map((imgSrc, idx) => (
+              <img
+                key={idx}
+                src={imgSrc}
+                alt={`Traveler ${idx + 1}`}
+                style={{
+                  width: '100px',
+                  height: '150px',
+                  borderRadius: '50px',
+                  objectFit: 'cover',
+                }}
+              />
+            ))}
+          </div>
+
+
+
+
+          <p style={{ fontSize: '0.95rem', color: '#444', margin: 0, fontWeight: 'bold' }}>
+            Your restaurant matches with
+          </p>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#d62e2e', margin: '6px 0' }}>
+            {customerProfile}
+          </h3>
+          <p style={{ fontSize: '0.95rem', color: '#555', margin: 0, fontWeight: 'bold' }}>
+            {profileDescriptions[customerProfile]}
+          </p>
+
         </div>
 
         <div style={{ width: '100%', maxWidth: '420px', height: '260px', margin: '0 auto 16px' }}>
@@ -147,14 +195,22 @@ const ResultPage = () => {
                   min: 1,
                   max: 7,
                   ticks: {
-                    stepSize: 1,
-                    color: '#444'
+                    display: false
                   },
+
                   pointLabels: {
-                    font: { size: 12 },
+                    font: { size: 12 , weight: 'bold'},
                     color: '#333',
                     padding: 16
+                  },
+                  grid: {
+                    lineWidth: (ctx) => {
+                      return ctx.index === ctx.chart.scales.r.ticks.length - 1 ? 1.2 : 0.3;
+                    },
+                    color: 'black',
                   }
+
+
                 }
               },
               plugins: { legend: { display: false } }
@@ -179,7 +235,7 @@ const ResultPage = () => {
             margin: '0 auto 8px'
           }}
         >
-          View Improvement Guidelines
+          See Guidelines
         </button>
 
       </div>
