@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AssessmentPage = () => {
@@ -61,130 +61,106 @@ const AssessmentPage = () => {
   const progressPercentage = Math.round((currentQuestionIndex + 1) / questions.length * 100);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#fafafa',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      padding: '20px 5vw'
-    }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#fafafa', fontFamily: 'system-ui, -apple-system, sans-serif', padding: '30px 5vw' }}>
+      <button
+        onClick={handleBack}
+        style={{
+          backgroundColor: '#910811',
+          color: 'white',
+          border: 'none',
+          borderRadius: '25px',
+          padding: '10px 24px',
+          fontWeight: 'bold',
+          fontSize: '0.9rem',
+          letterSpacing: '1px',
+          cursor: 'pointer',
+          marginBottom: '20px',
+          marginLeft: 0
+        }}
+      >
+        BACK
+      </button>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <button
-            onClick={handleBack}
-            style={{
-              backgroundColor: '#910811',
-              color: 'white',
-              border: 'none',
-              borderRadius: '25px',
-              padding: '10px 24px',
-              textTransform: 'uppercase',
-              fontWeight: 'bold',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              letterSpacing: '1px'
-            }}
-          >
-            BACK
-          </button>
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '10px' }}>
+        <img src="/logo_R.png" alt="Logo" style={{ width: '120px', height: 'auto', margin: '10px 0 0 0' }} />
+        <div style={{ fontSize: '1.4rem', color: '#910811', fontWeight: '600', marginTop: '5px' }}>Self-Assessment Tool</div>
+      </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '10px' }}>
-          <img src="/logo_R.png" alt="Logo" style={{ width: '120px', height: 'auto', margin: '10px 0 0 0' }} />
-          <div style={{ fontSize: '1.4rem', color: '#910811', fontWeight: '600', marginTop: '5px' }}>Self-Assessment Tool</div>
-        </div>
-
-        <div style={{ textAlign: 'center', marginTop: '20px', maxWidth: '500px', marginInline: 'auto' }}>
-          <p style={{ fontSize: '1rem', fontWeight: '600', color: '#333' }}>
-            Question {currentQuestionIndex + 1} of {questions.length}
-          </p>
-          <div style={{ height: '8px', width: '100%', backgroundColor: '#e0e0e0', borderRadius: '4px', overflow: 'hidden', marginBottom: '10px' }}>
-            <div style={{ width: `${progressPercentage}%`, height: '100%', backgroundColor: '#d62e2e', transition: 'width 0.3s ease' }} />
-          </div>
-          <p style={{ color: '#d62e2e', fontWeight: '600' }}>{progressPercentage}%</p>
-        </div>
-
-        <p style={{ fontSize: '1.5rem', fontWeight: '600', color: 'black', textAlign: 'center', margin: '40px auto', lineHeight: '1.6', maxWidth: '500px' }}>
-          {questions[currentQuestionIndex].text}
+      <div style={{ textAlign: 'center', marginTop: '20px', maxWidth: '500px', marginInline: 'auto' }}>
+        <p style={{ fontSize: '1rem', fontWeight: '600', color: '#333' }}>
+          Question {currentQuestionIndex + 1} of {questions.length}
         </p>
-
-        <div style={{ background: '#910811', padding: '20px 10px', borderRadius: '20px', maxWidth: '500px', margin: '0 auto 30px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', justifyItems: 'center', marginBottom: '20px' }}>
-            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-              <div
-                key={num}
-                style={{
-                  color: 'white',
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  width: '2.2rem',
-                  height: '2.2rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '50%',
-                  background: value === num ? '#F59E0B' : 'rgba(255, 255, 255, 0.1)',
-                  border: value === num ? '2px solid #F59E0B' : '2px solid rgba(255, 255, 255, 0.2)',
-                  transform: value === num ? 'scale(1.15)' : 'scale(1)',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                {num}
-              </div>
-            ))}
-          </div>
-
-          <div style={{ padding: '0 10px', marginBottom: '20px', position: 'relative' }}>
-            <div style={{ position: 'relative', height: '10px' }}>
-              <div style={{ position: 'absolute', width: '100%', height: '10px', background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4))', borderRadius: '5px' }} />
-              <div style={{ position: 'absolute', width: `${((value - 1) / 6) * 100}%`, height: '10px', background: '#F59E0B', borderRadius: '5px', transition: 'width 0.4s ease' }} />
-              <div style={{ position: 'absolute', left: `${((value - 1) / 6) * 100}%`, top: '50%', transform: 'translate(-50%, -50%)', width: '30px', height: '30px', background: '#F59E0B', border: '3px solid white', borderRadius: '50%', cursor: 'pointer' }} />
-              <input
-                type="range"
-                min="1"
-                max="7"
-                value={value}
-                onChange={handleSliderChange}
-                style={{ position: 'absolute', width: '100%', height: '30px', top: '50%', transform: 'translateY(-50%)', opacity: 0, cursor: 'pointer' }}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px' }}>
-            <div style={{ color: 'white', fontSize: '1rem', fontWeight: '600' }}>Strongly disagree</div>
-            <div style={{ color: 'white', fontSize: '1rem', fontWeight: '600' }}>Strongly agree</div>
-          </div>
+        <div style={{ height: '8px', width: '100%', backgroundColor: '#e0e0e0', borderRadius: '4px', overflow: 'hidden', marginBottom: '10px' }}>
+          <div style={{ width: `${progressPercentage}%`, height: '100%', backgroundColor: '#d62e2e', transition: 'width 0.3s ease' }} />
         </div>
+        <p style={{ color: '#d62e2e', fontWeight: '600' }}>{progressPercentage}%</p>
+      </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', maxWidth: '500px', margin: '0 auto 20px' }}>
-          {questions.map((_, index) => (
+      <p style={{ fontSize: '1.5rem', fontWeight: '600', color: 'black', textAlign: 'center', margin: '40px auto', lineHeight: '1.6', maxWidth: '500px' }}>
+        {questions[currentQuestionIndex].text}
+      </p>
+
+      <div style={{ background: '#910811', padding: '20px 10px', borderRadius: '20px', maxWidth: '500px', margin: '0 auto 30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', justifyItems: 'center', marginBottom: '20px' }}>
+          {[1, 2, 3, 4, 5, 6, 7].map((num) => (
             <div
-              key={index}
+              key={num}
               style={{
-                width: '12px',
-                height: '12px',
+                color: 'white',
+                fontSize: '1.1rem',
+                fontWeight: 'bold',
+                width: '2.2rem',
+                height: '2.2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 borderRadius: '50%',
-                backgroundColor: index === currentQuestionIndex ? '#d62e2e' : '#ccc',
-                transition: 'background-color 0.3s ease'
+                background: value === num ? '#F59E0B' : 'rgba(255, 255, 255, 0.1)',
+                border: value === num ? '2px solid #F59E0B' : '2px solid rgba(255, 255, 255, 0.2)',
+                transform: value === num ? 'scale(1.15)' : 'scale(1)',
+                transition: 'all 0.3s ease'
               }}
-            />
+            >
+              {num}
+            </div>
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '20px', maxWidth: '500px', margin: '0 auto' }}>
-          <button
-            onClick={handlePrevious}
-            style={{ flex: 1, background: '#910811', color: 'white', border: 'none', borderRadius: '35px', padding: '14px 30px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
-          >
-            Previous
-          </button>
-          <button
-            onClick={handleNext}
-            style={{ flex: 1, background: '#910811', color: 'white', border: 'none', borderRadius: '35px', padding: '14px 30px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
-          >
-            {currentQuestionIndex < questions.length - 1 ? 'Next' : 'Submit'}
-          </button>
+        <div style={{ padding: '0 10px', marginBottom: '20px', position: 'relative' }}>
+          <div style={{ position: 'relative', height: '10px' }}>
+            <div style={{ position: 'absolute', width: '100%', height: '10px', background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4))', borderRadius: '5px' }} />
+            <div style={{ position: 'absolute', width: `${((value - 1) / 6) * 100}%`, height: '10px', background: '#F59E0B', borderRadius: '5px', transition: 'width 0.4s ease' }} />
+            <div style={{ position: 'absolute', left: `${((value - 1) / 6) * 100}%`, top: '50%', transform: 'translate(-50%, -50%)', width: '30px', height: '30px', background: '#F59E0B', border: '3px solid white', borderRadius: '50%', cursor: 'pointer' }} />
+            <input
+              type="range"
+              min="1"
+              max="7"
+              value={value}
+              onChange={handleSliderChange}
+              style={{ position: 'absolute', width: '100%', height: '30px', top: '50%', transform: 'translateY(-50%)', opacity: 0, cursor: 'pointer' }}
+            />
+          </div>
         </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px' }}>
+          <div style={{ color: 'white', fontSize: '1rem', fontWeight: '600' }}>Strongly disagree</div>
+          <div style={{ color: 'white', fontSize: '1rem', fontWeight: '600' }}>Strongly agree</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '20px', maxWidth: '500px', margin: '0 auto' }}>
+        <button
+          onClick={handlePrevious}
+          style={{ flex: 1, background: '#910811', color: 'white', border: 'none', borderRadius: '35px', padding: '14px 30px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
+        >
+          Previous
+        </button>
+        <button
+          onClick={handleNext}
+          style={{ flex: 1, background: '#910811', color: 'white', border: 'none', borderRadius: '35px', padding: '14px 30px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
+        >
+          {currentQuestionIndex < questions.length - 1 ? 'Next' : 'Submit'}
+        </button>
       </div>
     </div>
   );
