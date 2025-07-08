@@ -26,7 +26,7 @@ const WelcomePage = () => {
       {/* LOGO Image */}
       <Box
         component="img"
-        src="/logo.png"
+        src={`${import.meta.env.BASE_URL}logo.png`} 
         alt="GET Authentic Thai Logo"
         sx={{
           width: { xs: '180px', sm: '240px' },
