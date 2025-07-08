@@ -38,7 +38,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router basename="/get-authentic-thai-mvp">
+      <Router basename="/gettastethai">
         <div style={{ width: '100%', minHeight: '100vh' }}>
           <Routes>
             <Route path="/" element={<WelcomePage />} />

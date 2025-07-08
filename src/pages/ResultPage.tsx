@@ -89,40 +89,41 @@ const ResultPage = () => {
     'Leisure Traveler': 'Enjoys relaxed, comfortable environments with familiar food.'
   };
 
+  const baseUrl = import.meta.env.BASE_URL;
+
   const travelerImages: { [key: string]: string[] } = {
-    'Leisure Traveler': ['/leisure1.png', '/leisure2.png'],
-    'Food-Driven Traveler': ['/food1.png', '/food2.png'],
-    'Cultural Food Traveler': ['/cultural1.png', '/cultural2.png']
+    'Leisure Traveler': [`${baseUrl}leisure1.png`, `${baseUrl}leisure2.png`],
+    'Food-Driven Traveler': [`${baseUrl}food1.png`, `${baseUrl}food2.png`],
+    'Cultural Food Traveler': [`${baseUrl}cultural1.png`, `${baseUrl}cultural2.png`],
   };
+
 
   const selectedImages = travelerImages[customerProfile] || [];
 
 
   return (
-    <div style={{ background: '#fafafa', minHeight: '100vh', padding: '80px 5vw 80px 5vw', fontFamily: 'system-ui', overflow: 'hidden', }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center', position: 'relative' }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            backgroundColor: '#910811',
-            color: 'white',
-            border: 'none',
-            borderRadius: '25px',
-            padding: '10px 24px',
-            fontWeight: 'bold',
-            fontSize: '0.9rem',
-            letterSpacing: '1px',
-            cursor: 'pointer'
-          }}
-        >
-          BACK
-        </button>
+    <div style={{ background: '#fff', minHeight: '100vh', padding: '30px 5vw', fontFamily: 'system-ui' }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          backgroundColor: '#910811',
+          color: 'white',
+          border: 'none',
+          borderRadius: '25px',
+          padding: '10px 24px',
+          fontWeight: 'bold',
+          fontSize: '0.9rem',
+          letterSpacing: '1px',
+          cursor: 'pointer',
+          marginBottom: '20px'
+        }}
+      >
+        BACK
+      </button>
 
+      <div style={{ textAlign: 'center' }}>
         <img
-          src="/logo_R.png"
+          src={`${import.meta.env.BASE_URL}logo_R.png`} 
           alt="Logo"
           style={{
             width: 'clamp(120px, 25vw, 200px)',
@@ -134,7 +135,7 @@ const ResultPage = () => {
         />
 
 
-        <div style={{ padding: '16px', borderRadius: '20px', marginBottom: '20px' }}>
+        <div style={{ padding: '16px', borderRadius: '20px', }}>
 
 
           <h2 style={{ fontSize: '1.3rem', color: '#111', fontWeight: 700, margin: '0 0 4px 0' }}>Customer Profile</h2>
@@ -170,7 +171,7 @@ const ResultPage = () => {
 
         </div>
 
-        <div style={{ width: '100%', maxWidth: '420px', height: '260px', margin: '0 auto 16px' }}>
+        <div style={{ width: '100%', maxWidth: '420px', height: '260px',  margin: '5px auto' }}>
           <Radar
             data={{
               labels: dimensionLabels,
@@ -188,9 +189,15 @@ const ResultPage = () => {
             options={{
               responsive: true,
               maintainAspectRatio: false,
-              layout: { padding: 30 },
+              layout: { padding: {
+                        left: 45,
+                        right: 16,
+                        top: 20,
+                        bottom: 20
+                      }},
               scales: {
                 r: {
+                  
                   beginAtZero: true,
                   min: 1,
                   max: 7,
@@ -208,7 +215,7 @@ const ResultPage = () => {
                       return ctx.index === ctx.chart.scales.r.ticks.length - 1 ? 1.2 : 0.3;
                     },
                     color: 'black',
-                  }
+                  },
 
 
                 }

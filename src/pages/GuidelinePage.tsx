@@ -109,11 +109,14 @@ const GuidelinesPage = () => {
     doc.save(`GET_AUTHENTIC_GUIDELINE_${profile.replace(/\s+/g, '_')}.pdf`);
   };
 
-  const travelerImages: Record<ProfileType, string[]> = {
-    'Leisure Traveler': ['/leisure1.png', '/leisure2.png'],
-    'Food-Driven Traveler': ['/food1.png', '/food2.png'],
-    'Cultural Food Traveler': ['/cultural1.png', '/cultural2.png']
+  const baseUrl = import.meta.env.BASE_URL;
+
+  const travelerImages: Record<string, string[]> = {
+    'Leisure Traveler': [`${baseUrl}leisure1.png`, `${baseUrl}leisure2.png`],
+    'Food-Driven Traveler': [`${baseUrl}food1.png`, `${baseUrl}food2.png`],
+    'Cultural Food Traveler': [`${baseUrl}cultural1.png`, `${baseUrl}cultural2.png`],
   };
+
 
   const selectedImages = travelerImages[profile];
 
@@ -140,7 +143,7 @@ const GuidelinesPage = () => {
 
       <div style={{ textAlign: 'center' }}>
         <img
-          src="/logo_R.png"
+          src={`${import.meta.env.BASE_URL}logo_R.png`} 
           alt="Logo"
           style={{
             width: 'clamp(120px, 25vw, 200px)',
@@ -190,12 +193,17 @@ const GuidelinesPage = () => {
             <div style={{
               background: '#FFF9ED',
               borderRadius: '15px',
-              padding: '16px 20px',
+              padding: '12px 16px',
               textAlign: 'left'
             }}>
-              <ul style={{ paddingLeft: '18px', margin: 0, lineHeight: '1.5' }}>
+              <ul style={{
+                paddingLeft: '16px',
+                margin: 0,
+                lineHeight: '1.3',
+                fontSize: '0.85rem'
+              }}>
                 {mustHave.map((item, i) => (
-                  <li key={i} style={{ marginBottom: '8px', fontSize: '0.95rem' }}>{item}</li>
+                  <li key={i} style={{ marginBottom: '6px' }}>{item}</li>
                 ))}
               </ul>
             </div>
@@ -218,17 +226,23 @@ const GuidelinesPage = () => {
             <div style={{
               background: '#FFF9ED',
               borderRadius: '15px',
-              padding: '16px 20px',
+              padding: '12px 16px',
               textAlign: 'left'
             }}>
-              <ul style={{ paddingLeft: '18px', margin: 0, lineHeight: '1.5' }}>
+              <ul style={{
+                paddingLeft: '16px',
+                margin: 0,
+                lineHeight: '1.3',
+                fontSize: '0.85rem'
+              }}>
                 {niceToHave.map((item, i) => (
-                  <li key={i} style={{ marginBottom: '8px', fontSize: '0.95rem' }}>{item}</li>
+                  <li key={i} style={{ marginBottom: '6px' }}>{item}</li>
                 ))}
               </ul>
             </div>
           </div>
         </div>
+
 
 
         <button

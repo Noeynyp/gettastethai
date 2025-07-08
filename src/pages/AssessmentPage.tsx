@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const AssessmentPage = () => {
   const questions = [
-    { text: "We use ingredients locally sourced from Thailand such as kaffir lime, lemongrass, Thai lime and Thai chili", category: "Ingredients" },
+    { text: "We use ingredients locally sourced from Thailand such as kaffir lime, lemongrass, Thai lime and Thai chili.", category: "Ingredients" },
     { text: "We use fresh Thai herbs and vegetables in our dishes.", category: "Ingredients" },
     { text: "We use hot and spicy ingredients like Thai chili or chili paste in our menu.", category: "Ingredients" },
     { text: "Our dishes use traditional Thai flavor ingredients such as fish sauce, shrimp paste, and galangal.", category: "Ingredients" },
@@ -82,7 +82,7 @@ const AssessmentPage = () => {
       </button>
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '10px' }}>
-        <img src="/logo_R.png" alt="Logo" style={{ width: '120px', height: 'auto', margin: '10px 0 0 0' }} />
+        <img src={`${import.meta.env.BASE_URL}logo_R.png`}  alt="Logo" style={{ width: '120px', height: 'auto', margin: '10px 0 0 0' }} />
         <div style={{ fontSize: '1.4rem', color: '#910811', fontWeight: '600', marginTop: '5px' }}>Self-Assessment Tool</div>
       </div>
 
@@ -96,9 +96,24 @@ const AssessmentPage = () => {
         <p style={{ color: '#d62e2e', fontWeight: '600' }}>{progressPercentage}%</p>
       </div>
 
-      <p style={{ fontSize: '1.5rem', fontWeight: '600', color: 'black', textAlign: 'center', margin: '40px auto', lineHeight: '1.6', maxWidth: '500px' }}>
+      <div style={{
+        fontSize: '1.2rem',
+        fontWeight: '600',
+        color: 'black',
+        textAlign: 'center',
+        margin: '40px auto',
+        lineHeight: '1.5',
+        maxWidth: '500px',
+        minHeight: '120px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0 10px',
+        overflowWrap: 'break-word'
+      }}>
         {questions[currentQuestionIndex].text}
-      </p>
+      </div>
+
 
       <div style={{ background: '#910811', padding: '20px 10px', borderRadius: '20px', maxWidth: '500px', margin: '0 auto 30px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', justifyItems: 'center', marginBottom: '20px' }}>
