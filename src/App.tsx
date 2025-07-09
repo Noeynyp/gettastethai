@@ -8,11 +8,11 @@ import GuidelinePage from './pages/GuidelinePage';
 
 const theme = createTheme({
   palette: {
-    primary: { main: '#910811' }, // Updated GET TASTE THAI Red
+    primary: { main: '#910811' },
        // GET TASTE THAI Red
-    secondary: { main: '#059669' },     // Thai Green
-    warning: { main: '#F59E0B' },       // Thai Gold
-    info: { main: '#D97706' },          // Thai Orange
+    secondary: { main: '#059669' },
+    warning: { main: '#F59E0B' },
+    info: { main: '#D97706' },
     background: { default: '#fff' },
   },
   typography: {
