@@ -38,7 +38,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router basename="/gettastethai">
+      <Router>
         <div style={{ width: '100%', minHeight: '100vh' }}>
           <Routes>
             <Route path="/" element={<WelcomePage />} />
