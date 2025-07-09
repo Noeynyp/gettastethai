@@ -4,5 +4,5 @@ import os
 
 app = FastAPI()
 
-# Serve static files from the 'dist' folder (Vite build output) ...
+# Serve static files from the 'dist' folder (Vite build output) ....
 app.mount("/", StaticFiles(directory="dist", html=True), name="static")
