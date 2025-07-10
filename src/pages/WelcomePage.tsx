@@ -51,7 +51,7 @@ const WelcomePage = () => {
       </Typography>
       <Button
         variant="contained"
-        onClick={() => navigate('/assessment')}
+        onClick={() => navigate('/login')}
         sx={{
           bgcolor: 'white',
           color: 'primary.main',
