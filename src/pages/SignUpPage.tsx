@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, Box } from '@mui/material';
+import { useUser } from '../contexts/UserContext'; // ✅ Import UserContext
 
 const SignUpPage = () => {
   const navigate = useNavigate();
+  const { setUser } = useUser(); // ✅ Get setUser from context
+
   const [email, setEmail] = useState('');
   const [restaurantName, setRestaurantName] = useState('');
   const [password, setPassword] = useState('');
@@ -16,11 +19,16 @@ const SignUpPage = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ restaurant_name: restaurantName, email, password })
         });
+
         if (!response.ok) {
           const data = await response.json();
           alert(data.detail || 'Sign up failed.');
           return;
         }
+
+        // ✅ Save user in context
+        setUser({ email, restaurant_name: restaurantName });
+
         navigate('/assessment');
       } catch (err) {
         alert('Network error. Please try again.');
@@ -38,10 +46,9 @@ const SignUpPage = () => {
       bgcolor="#fafafa"
       px={2}
     >
-      <img src={`${import.meta.env.BASE_URL}logo_R.png`}  alt="Logo" style={{ width: 100, marginBottom: 20 }} />
+      <img src={`${import.meta.env.BASE_URL}logo_R.png`} alt="Logo" style={{ width: 100, marginBottom: 20 }} />
       <Typography variant="h5" fontWeight="bold" mb={2}>Sign Up</Typography>
 
-      {/* Centered form container with maxWidth */}
       <Box width="100%" maxWidth={400}>
         <TextField
           label="Restaurant Name"
