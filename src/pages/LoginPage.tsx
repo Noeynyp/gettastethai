@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Box, TextField } from '@mui/material';
+import { useUser } from '../contexts/UserContext'; // ✅ Import context
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { setUser } = useUser(); // ✅ Use context
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,11 +19,15 @@ const LoginPage = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ identifier: email, password })
         });
+
         if (!response.ok) {
           const data = await response.json();
           alert(data.detail || 'Login failed.');
           return;
         }
+
+        const data = await response.json(); // ✅ Get { email, restaurant_name }
+        setUser(data); // ✅ Save to context
         navigate('/assessment');
       } catch (err) {
         alert('Network error. Please try again.');
@@ -30,7 +36,7 @@ const LoginPage = () => {
   };
 
   const handleSignUpClick = () => {
-    navigate('/signup'); // Navigate to your existing sign-up page
+    navigate('/signup');
   };
 
   return (
@@ -43,7 +49,7 @@ const LoginPage = () => {
       bgcolor="#fafafa"
       px={2}
     >
-      <img src={`${import.meta.env.BASE_URL}logo_R.png`}  alt="Logo" style={{ width: 100, marginBottom: 20 }} />
+      <img src={`${import.meta.env.BASE_URL}logo_R.png`} alt="Logo" style={{ width: 100, marginBottom: 20 }} />
       <Typography variant="h5" fontWeight="bold" mb={2}>Sign In to Continue</Typography>
       <Box width="100%" maxWidth={400}>
         <form onSubmit={handleSubmit}>
