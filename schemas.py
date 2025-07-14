@@ -8,7 +8,7 @@ class SignUpRequest(BaseModel):
     password: str
 
 class LoginRequest(BaseModel):
-    identifier: str  # can be email or restaurant_name
+    identifier: str  # can be email or restaurant_name.
     password: str
 
 class UserOut(BaseModel):
