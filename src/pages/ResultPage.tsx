@@ -117,10 +117,15 @@ const ResultPage = () => {
       formData.append('email', email);
 
       try {
-        const response = await fetch('/api/upload-result-image', {
+        formData.append('scores', JSON.stringify(scores));
+        formData.append('categories', JSON.stringify(categories));
+        formData.append('profile_type', customerProfile);
+
+        const response = await fetch('/api/upload-result', {
           method: 'POST',
           body: formData,
         });
+
         const data = await response.json();
         if (data.success) {
           setUploadedImageUrl(`${backendBaseUrl}${data.url}`);
@@ -290,6 +295,25 @@ const ResultPage = () => {
       >
         Download as Image
       </button>
+      <button
+        onClick={() => navigate('/assessment')}
+        style={{
+          background: '#888',
+          color: 'white',
+          border: 'none',
+          borderRadius: '15px',
+          padding: '12px 24px',
+          fontSize: '1rem',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          width: '100%',
+          maxWidth: '420px',
+          margin: '8px auto 20px',
+          display: 'block'
+        }}
+      >
+        Redo Quiz
+      </button>
 
       {uploadedImageUrl && (
         <div style={{ textAlign: 'center', marginTop: '10px' }}>
@@ -310,6 +334,7 @@ const ResultPage = () => {
           </a>
         </div>
       )}
+
     </div>
   );
 };

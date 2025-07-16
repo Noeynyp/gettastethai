@@ -11,6 +11,9 @@ import os
 import uuid
 from schemas import SignUpRequest, LoginRequest, UserOut, ProfileUpdate
 
+from starlette.staticfiles import StaticFiles
+
+
 
 # Load environment variables
 load_dotenv()
@@ -96,16 +99,18 @@ async def profile_update(req: ProfileUpdate):
 # Serve uploaded images as static files
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 
-@app.post("/api/upload-result-image")
-async def upload_result_image(
+@app.post("/api/upload-result")
+async def upload_result(
     file: UploadFile = File(...),
-    email: str = Form(...)
+    email: str = Form(...),
+    scores: str = Form(...),
+    categories: str = Form(...),
+    profile_type: str = Form(...)
 ):
     user = await users_collection.find_one({"email": email})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Save image with unique filename
     filename = f"{uuid.uuid4()}.png"
     filepath = os.path.join("uploaded_images", filename)
 
@@ -115,13 +120,82 @@ async def upload_result_image(
 
     image_url = f"/uploaded_images/{filename}"
 
-    # Update user's record
+    # Save score + result
     await users_collection.update_one(
         {"email": email},
-        {"$set": {"result_image_url": image_url}}
+        {"$set": {
+            "quiz_result": {
+                "scores": eval(scores),  # List of numbers
+                "categories": eval(categories),
+                "profile_type": profile_type,
+                "result_image_url": image_url
+            }
+        }}
     )
 
     return JSONResponse(content={"success": True, "url": image_url})
+    
+
+# @app.post("/api/upload-result-image")
+# async def upload_result_image(
+#     file: UploadFile = File(...),
+#     email: str = Form(...)
+# ):
+#     user = await users_collection.find_one({"email": email})
+#     if not user:
+#         raise HTTPException(status_code=404, detail="User not found")
+
+#     # Save image with unique filename
+#     filename = f"{uuid.uuid4()}.png"
+#     filepath = os.path.join("uploaded_images", filename)
+
+#     with open(filepath, "wb") as buffer:
+#         content = await file.read()
+#         buffer.write(content)
+
+#     image_url = f"/uploaded_images/{filename}"
+
+#     # Update user's record
+#     await users_collection.update_one(
+#         {"email": email},
+#         {"$set": {"result_image_url": image_url}}
+#     )
+
+#     return JSONResponse(content={"success": True, "url": image_url})
+
+@app.get("/api/quiz-result")
+async def get_quiz_result(email: str):
+    user = await users_collection.find_one({"email": email})
+    if not user or "quiz_result" not in user:
+        return JSONResponse(content={"exists": False})
+    
+    return {
+        "exists": True,
+        "scores": user["quiz_result"]["scores"],
+        "categories": user["quiz_result"]["categories"],
+        "profile_type": user["quiz_result"]["profile_type"]
+    }
+
 
 # Serve frontend
 app.mount("/", StaticFiles(directory="dist", html=True), name="static")
+
+
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import FileResponse
+from starlette.requests import Request
+import os
+
+class SPAFallbackMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        
+        # Only fallback if it's a 404 and NOT an API or static file request
+        if response.status_code == 404 and not request.url.path.startswith("/api") and "." not in request.url.path:
+            index_path = os.path.join("dist", "index.html")
+            if os.path.exists(index_path):
+                return FileResponse(index_path)
+        
+        return response
+
+app.add_middleware(SPAFallbackMiddleware)

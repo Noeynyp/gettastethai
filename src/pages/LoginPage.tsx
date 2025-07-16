@@ -48,7 +48,20 @@ const LoginPage = () => {
         }
 
         setUser(data);
-        navigate(data.profile_completed ? '/assessment' : '/survey');
+        const resultRes = await fetch(`/api/quiz-result?email=${data.email}`);
+        const resultJson = await resultRes.json();
+
+        if (resultJson.exists) {
+          navigate('/result', {
+            state: {
+              scores: resultJson.scores,
+              categories: resultJson.categories,
+            },
+          });
+        } else {
+          navigate(data.profile_completed ? '/assessment' : '/survey');
+        }
+
       } catch (err) {
         alert('Network error. Please try again.');
       }
