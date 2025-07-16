@@ -8,6 +8,7 @@ class SignUpRequest(BaseModel):
 
 class LoginRequest(BaseModel):
     identifier: str
+    
     password: str
 
 class UserOut(BaseModel):
@@ -25,3 +26,6 @@ class ProfileUpdate(BaseModel):
     contact_email: Optional[str] = None
     website: Optional[str] = None
     description: Optional[str] = None
+
+
+##redep

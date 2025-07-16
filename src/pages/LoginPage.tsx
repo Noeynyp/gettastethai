@@ -37,7 +37,7 @@ const LoginPage = () => {
         const response = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ identifier: email, password })
+          body: JSON.stringify({ identifier: email, password }),
         });
 
         const data = await response.json();
@@ -69,9 +69,23 @@ const LoginPage = () => {
   };
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="100vh" bgcolor="#fafafa" px={2}>
-      <img src={`${import.meta.env.BASE_URL}logo_R.png`} alt="Logo" style={{ width: 100, marginBottom: 20 }} />
-      <Typography variant="h5" fontWeight="bold" mb={2}>{text.title}</Typography>
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="100vh"
+      bgcolor="#fafafa"
+      px={2}
+    >
+      <img
+        src={`${import.meta.env.BASE_URL}logo_R.png`}
+        alt="Logo"
+        style={{ width: 100, marginBottom: 20 }}
+      />
+      <Typography variant="h5" fontWeight="bold" mb={2}>
+        {text.title}
+      </Typography>
       <Box width="100%" maxWidth={400}>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -99,7 +113,17 @@ const LoginPage = () => {
             variant="contained"
             color="primary"
             fullWidth
-            sx={{ mt: 3, mb: 1, borderRadius: '25px', fontWeight: 'bold', py: 1, backgroundColor: '#910811' }}
+            sx={{
+              mt: 3,
+              mb: 1,
+              borderRadius: '25px',
+              fontWeight: 'bold',
+              py: 1,
+              backgroundColor: '#910811',
+              '&:hover': {
+                backgroundColor: '#7c0710',
+              },
+            }}
           >
             {text.loginBtn}
           </Button>
