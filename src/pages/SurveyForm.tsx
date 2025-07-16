@@ -63,6 +63,11 @@ export default function FullSurveyPage() {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      alert('User not logged in');
+      return;
+    }
+
     const newErrors = validateForm();
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
