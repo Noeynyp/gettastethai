@@ -9,6 +9,8 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import FullSurveyPage from './pages/SurveyForm';
 
+import EmailVerifiedPage from './pages/EmailVerifyPage';
+
 const theme = createTheme({
   palette: {
     primary: { main: '#910811' },
@@ -51,7 +53,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/survey" element={<FullSurveyPage />} />
-            
+            <Route path="/email-verified" element={<EmailVerifiedPage />} />
+
 
           </Routes>
         </div>

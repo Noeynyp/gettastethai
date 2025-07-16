@@ -1,7 +1,7 @@
 # main.py
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Body
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from passlib.context import CryptContext
@@ -10,6 +10,10 @@ from dotenv import load_dotenv
 import os
 import uuid
 from schemas import SignUpRequest, LoginRequest, UserOut, ProfileUpdate
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import secrets
 
 
 # Load environment variables.
@@ -47,14 +51,53 @@ async def signup(req: SignUpRequest):
     if existing:
         raise HTTPException(status_code=400, detail="User already exists.")
 
+    verification_token = secrets.token_urlsafe(32)
     user_data = {
         "restaurant_name": req.restaurant_name,
         "email": req.email,
-        "password": hash_password(req.password)
+        "password": hash_password(req.password),
+        "is_verified": False,
+        "verification_token": verification_token
     }
     await users_collection.insert_one(user_data)
-    return {"success": True, "message": "Account created successfully."}
 
+    # Send verification email
+    sender_email = "getauthenticthai@gmail.com"
+    receiver_email = req.email
+    password = os.getenv("EMAIL_APP_PASSWORD")  # Use app password for Gmail
+    verification_link = f"https://getauthenticthai-dkfhdbg5f3amd7fu.southeastasia-01.azurewebsites.net/api/verify-email?token={verification_token}&email={req.email}"
+
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Verify your email for GET Authentic Thai"
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    text = f"Please verify your email by clicking the following link: {verification_link}"
+    html = f"<p>Please verify your email by clicking the following link:</p><a href='{verification_link}'>Verify Email</a>"
+    message.attach(MIMEText(text, "plain"))
+    message.attach(MIMEText(html, "html"))
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message.as_string())
+    except Exception as e:
+        print(f"Failed to send verification email: {e}")
+        # Optionally, delete the user if email fails
+        await users_collection.delete_one({"email": req.email})
+        raise HTTPException(status_code=500, detail="Failed to send verification email.")
+
+    return {"success": True, "message": "Account created. Please verify your email."}
+
+@app.get("/api/verify-email")
+async def verify_email(token: str, email: str):
+    user = await users_collection.find_one({"email": email, "verification_token": token})
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid verification link.")
+    await users_collection.update_one({"email": email}, {"$set": {"is_verified": True}, "$unset": {"verification_token": ""}})
+    return RedirectResponse(url="https://getauthenticthai-dkfhdbg5f3amd7fu.southeastasia-01.azurewebsites.net/email-verified")
+
+# Update login to check is_verified
 @app.post("/api/login", response_model=UserOut)
 async def login(req: LoginRequest):
     user = await users_collection.find_one({
@@ -65,6 +108,8 @@ async def login(req: LoginRequest):
     })
     if not user or not verify_password(req.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials.")
+    if not user.get("is_verified"):
+        raise HTTPException(status_code=403, detail="Email not verified. Please check your inbox.")
 
     # Determine if profile is completed
     required_fields = ["owner_name", "location", "business_type", "current_position"]
