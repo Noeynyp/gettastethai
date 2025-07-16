@@ -12,7 +12,7 @@ import uuid
 from schemas import SignUpRequest, LoginRequest, UserOut, ProfileUpdate
 
 
-# Load environment variables
+# Load environment variables.
 load_dotenv()
 
 app = FastAPI()

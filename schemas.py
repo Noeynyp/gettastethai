@@ -8,6 +8,7 @@ class SignUpRequest(BaseModel):
 
 class LoginRequest(BaseModel):
     identifier: str
+    
     password: str
 
 class UserOut(BaseModel):
