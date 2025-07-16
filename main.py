@@ -1,6 +1,6 @@
 # main.py
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Body
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,8 +9,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 import os
 import uuid
+from schemas import SignUpRequest, LoginRequest, UserOut, ProfileUpdate
 
-from schemas import SignUpRequest, LoginRequest, UserOut
 
 # Load environment variables
 load_dotenv()
@@ -66,10 +66,32 @@ async def login(req: LoginRequest):
     if not user or not verify_password(req.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
+    # Determine if profile is completed
+    required_fields = ["owner_name", "location", "business_type", "current_position"]
+    profile_completed = all(user.get(field) for field in required_fields)
+
     return {
         "restaurant_name": user["restaurant_name"],
-        "email": user["email"]
+        "email": user["email"],
+        "profile_completed": profile_completed
     }
+
+
+
+from schemas import ProfileUpdate
+
+@app.post("/api/profile-update")
+async def profile_update(req: ProfileUpdate):
+    user = await users_collection.find_one({"email": req.contact_email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    await users_collection.update_one(
+        {"email": req.contact_email},
+        {"$set": req.dict()}
+    )
+
+    return {"success": True, "message": "Profile updated"}
 
 # Serve uploaded images as static files
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")

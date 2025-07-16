@@ -7,6 +7,7 @@ import ResultPage from './pages/ResultPage';
 import GuidelinePage from './pages/GuidelinePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import FullSurveyPage from './pages/SurveyForm';
 
 const theme = createTheme({
   palette: {
@@ -49,6 +50,8 @@ function App() {
             <Route path="/guidelines" element={<GuidelinePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/survey" element={<FullSurveyPage />} />
+            
 
           </Routes>
         </div>
