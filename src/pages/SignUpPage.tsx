@@ -35,27 +35,29 @@ const SignUpPage = () => {
   }[language];
 
   const handleSignUp = async () => {
-    if (email && restaurantName && password) {
-      try {
-        const response = await fetch('/api/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ restaurant_name: restaurantName, email, password })
-        });
+  if (email && restaurantName && password) {
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ restaurant_name: restaurantName, email, password })
+      });
 
-        if (!response.ok) {
-          const data = await response.json();
-          alert(data.detail || 'Sign up failed.');
-          return;
-        }
+      const data = await response.json();
 
-        setUser({ email, restaurant_name: restaurantName });
-        navigate('/survey');
-      } catch (err) {
-        alert('Network error. Please try again.');
+      if (!response.ok) {
+        alert(data.detail || 'Sign up failed.');
+        return;
       }
+
+      alert('Account created successfully. Please check your email and click the verification link to continue.');
+      navigate('/login'); // ✅ Let user log in only after verification
+    } catch (err) {
+      alert('Network error. Please try again.');
     }
-  };
+  }
+};
+
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="100vh" bgcolor="#fafafa" px={2}>
