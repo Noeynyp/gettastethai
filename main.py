@@ -261,12 +261,21 @@ async def stripe_webhook(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
 
+    print("💡 Stripe payload:", payload)
+    print("💡 Signature header:", sig_header)
+
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, os.getenv("STRIPE_WEBHOOK_SECRET")
         )
-    except (ValueError, stripe.error.SignatureVerificationError):
+    except ValueError as e:
+        print("❌ Invalid payload:", e)
         return Response(status_code=400)
+    except stripe.error.SignatureVerificationError as e:
+        print("❌ Signature verification failed:", e)
+        return Response(status_code=400)
+
+    print("✅ Stripe event parsed successfully:", event)
 
     # ✅ Handle successful subscription checkout
     if event["type"] == "checkout.session.completed":
