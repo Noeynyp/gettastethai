@@ -116,30 +116,34 @@ const AssessmentPage = () => {
 
 
       <div style={{ background: '#910811', padding: '20px 10px', borderRadius: '20px', maxWidth: '500px', margin: '0 auto 30px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', justifyItems: 'center', marginBottom: '20px' }}>
-          {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-            <div
-              key={num}
-              style={{
-                color: 'white',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                width: '2.2rem',
-                height: '2.2rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                background: value === num ? '#F59E0B' : 'rgba(255, 255, 255, 0.1)',
-                border: value === num ? '2px solid #F59E0B' : '2px solid rgba(255, 255, 255, 0.2)',
-                transform: value === num ? 'scale(1.15)' : 'scale(1)',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              {num}
-            </div>
-          ))}
-        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', justifyItems: 'center' }}>
+            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+              <div
+                key={num}
+                style={{
+                  color: 'white',
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  width: '2.2rem',
+                  height: '2.2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  background: value === num ? '#F59E0B' : 'rgba(255, 255, 255, 0.1)',
+                  border: value === num ? '2px solid #F59E0B' : '2px solid rgba(255, 255, 255, 0.2)',
+                  transform: value === num ? 'scale(1.15)' : 'scale(1)',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {num}
+              </div>
+            ))}
+          </div>
+  
+</div>
+
 
         <div style={{ padding: '0 10px', marginBottom: '20px', position: 'relative' }}>
           <div style={{ position: 'relative', height: '10px' }}>
@@ -157,10 +161,18 @@ const AssessmentPage = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          textAlign: 'center',
+          padding: '0 10px',
+          marginTop: '8px',
+        }}>
           <div style={{ color: 'white', fontSize: '1rem', fontWeight: '600' }}>Strongly disagree</div>
+          <div style={{ color: 'white', fontSize: '0.95rem', fontWeight: '600' }}>Neutral</div>
           <div style={{ color: 'white', fontSize: '1rem', fontWeight: '600' }}>Strongly agree</div>
         </div>
+
       </div>
 
       <div style={{ display: 'flex', gap: '20px', maxWidth: '500px', margin: '0 auto' }}>

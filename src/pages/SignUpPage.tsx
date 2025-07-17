@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, Box } from '@mui/material';
-import { useUser } from '../contexts/UserContext';
+
 import { useLanguage } from '../contexts/LanguageContext';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
-  const { setUser } = useUser();
+
   const { language } = useLanguage();
 
   const [email, setEmail] = useState('');

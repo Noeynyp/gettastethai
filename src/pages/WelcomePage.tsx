@@ -1,13 +1,14 @@
-import { Box, Button, Typography, IconButton, Menu, MenuItem } from '@mui/material';
+import { Box, Button, Typography, IconButton, Menu, MenuItem, Modal } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import LanguageIcon from '@mui/icons-material/Language';
-import { useLanguage } from '../contexts/LanguageContext'; // ✅ import from context
+import { useLanguage } from '../contexts/LanguageContext';
 
 const WelcomePage = () => {
   const navigate = useNavigate();
-  const { language, setLanguage } = useLanguage(); // ✅ use context
+  const { language, setLanguage } = useLanguage();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [disclaimerOpen, setDisclaimerOpen] = useState(false);
 
   const handleLanguageMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -18,29 +19,48 @@ const WelcomePage = () => {
   };
 
   const handleLanguageChange = (lang: 'en' | 'th') => {
-    setLanguage(lang); // ✅ updates context + localStorage
+    setLanguage(lang);
     handleLanguageMenuClose();
   };
 
-  // ✅ Text content for both languages
   const content = {
     en: {
       welcomeTo: "WELCOME TO",
       authenticThai: "AUTHENTIC THAI",
       selfAssessment: "SELF - ASSESSMENT TOOL",
       assessDesc: "ASSESS THE AUTHENTICITY OF YOUR THAI CUISINE",
-      start: "START"
+      start: "START",
+      disclaimerTitle: "Discover Your Thai Authenticity",
+      disclaimerBody: `This tool helps you reflect on your restaurant’s current level of Thai authenticity — honestly and clearly.
+
+It’s not about getting a high score, but about understanding where you are now.
+
+By completing this self-assessment, you’ll gain insights that can help you:
+• Strengthen your authenticity
+• Improve service and staff training
+• Gain new customer groups
+• Prepare for future recognition, awards or review platforms`,
+      ok: "OK"
     },
     th: {
       welcomeTo: "ยินดีต้อนรับสู่",
       authenticThai: "อาหารไทยแท้",
       selfAssessment: "เครื่องมือประเมินตนเอง",
       assessDesc: "ประเมินความเป็นไทยแท้ของอาหารไทยของคุณ",
-      start: "เริ่มต้น"
-    }
-  };
+      start: "เริ่มต้น",
+      disclaimerTitle: "ค้นพบความเป็นไทยแท้ของร้านคุณ",
+      disclaimerBody: `เครื่องมือนี้จะช่วยคุณสะท้อนถึงระดับความเป็นไทยแท้ของร้านอาหาร — อย่างตรงไปตรงมา
 
-  const currentContent = content[language];
+ไม่ใช่เพื่อได้คะแนนสูง แต่เพื่อเข้าใจสถานะปัจจุบันของร้านคุณ
+
+หลังจากทำแบบประเมินนี้ คุณจะได้แนวทางเพื่อ:
+• เสริมสร้างความเป็นไทยแท้
+• พัฒนาการบริการและการฝึกอบรมพนักงาน
+• ขยายกลุ่มลูกค้าใหม่
+• เตรียมความพร้อมสำหรับรางวัลหรือแพลตฟอร์มรีวิวในอนาคต`,
+      ok: "ตกลง"
+    }
+  }[language];
 
   return (
     <Box
@@ -55,7 +75,6 @@ const WelcomePage = () => {
         overflow: 'hidden',
       }}
     >
-      {/* Dark overlay */}
       <Box
         sx={{
           position: 'absolute',
@@ -68,15 +87,7 @@ const WelcomePage = () => {
         }}
       />
 
-      {/* Language Switcher */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 20,
-          right: 20,
-          zIndex: 3,
-        }}
-      >
+      <Box sx={{ position: 'absolute', top: 20, right: 20, zIndex: 3 }}>
         <IconButton
           onClick={handleLanguageMenuOpen}
           sx={{
@@ -103,22 +114,11 @@ const WelcomePage = () => {
             }
           }}
         >
-          <MenuItem
-            onClick={() => handleLanguageChange('en')}
-            selected={language === 'en'}
-          >
-            🇺🇸 English
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleLanguageChange('th')}
-            selected={language === 'th'}
-          >
-            🇹🇭 ไทย
-          </MenuItem>
+          <MenuItem onClick={() => handleLanguageChange('en')} selected={language === 'en'}>🇺🇸 English</MenuItem>
+          <MenuItem onClick={() => handleLanguageChange('th')} selected={language === 'th'}>🇹🇭 ไทย</MenuItem>
         </Menu>
       </Box>
 
-      {/* Main Content */}
       <Box
         sx={{
           position: 'relative',
@@ -133,41 +133,26 @@ const WelcomePage = () => {
           textAlign: 'center',
         }}
       >
-        <Typography variant="h6" sx={{ letterSpacing: 6, mb: 1 }}>
-          {currentContent.welcomeTo}
-        </Typography>
-
+        <Typography variant="h6" sx={{ letterSpacing: 6, mb: 1 }}>{content.welcomeTo}</Typography>
         <Box
           component="img"
           src={`${import.meta.env.BASE_URL}logo.png`}
           alt="GET Authentic Thai Logo"
-          sx={{
-            width: { xs: '180px', sm: '240px' },
-            mb: 1,
-          }}
+          sx={{ width: { xs: '180px', sm: '240px' }, mb: 1 }}
         />
-
-        <Typography
-          variant="subtitle1"
-          sx={{ letterSpacing: 3, fontSize: { xs: '1rem', sm: '1.2rem' } }}
-        >
-          {currentContent.authenticThai}
+        <Typography variant="subtitle1" sx={{ letterSpacing: 3, fontSize: { xs: '1rem', sm: '1.2rem' } }}>
+          {content.authenticThai}
         </Typography>
-
-        <Typography
-          variant="subtitle2"
-          sx={{ mt: 4, fontSize: { xs: '0.9rem', sm: '1rem' } }}
-        >
-          {currentContent.selfAssessment}
+        <Typography variant="subtitle2" sx={{ mt: 4, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+          {content.selfAssessment}
         </Typography>
-
         <Typography sx={{ mb: 4, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-          {currentContent.assessDesc}
+          {content.assessDesc}
         </Typography>
 
         <Button
           variant="contained"
-          onClick={() => navigate('/login')}
+          onClick={() => setDisclaimerOpen(true)}
           sx={{
             bgcolor: 'white',
             color: 'primary.main',
@@ -179,9 +164,47 @@ const WelcomePage = () => {
             '&:hover': { bgcolor: '#f4f4f4' },
           }}
         >
-          {currentContent.start}
+          {content.start}
         </Button>
       </Box>
+
+      {/* Disclaimer Modal */}
+      <Modal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'white',
+            p: 4,
+            borderRadius: 4,
+            maxWidth: 500,
+            width: '90%',
+            boxShadow: 24,
+            textAlign: 'left',
+          }}
+        >
+          <Typography variant="h6" color="primary" gutterBottom>
+            {content.disclaimerTitle}
+          </Typography>
+          <Typography variant="body2" sx={{ whiteSpace: 'pre-line', mb: 3 }}>
+            {content.disclaimerBody}
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={() => {
+              setDisclaimerOpen(false);
+              navigate('/login');
+            }}
+            sx={{ borderRadius: '25px', fontWeight: 'bold', py: 1 }}
+          >
+            {content.ok}
+          </Button>
+        </Box>
+      </Modal>
     </Box>
   );
 };

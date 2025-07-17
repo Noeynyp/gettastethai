@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 type User = {
@@ -14,7 +14,25 @@ type UserContextType = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) setUserState(JSON.parse(stored));
+  }, []);
+
+  // Save user to localStorage on change
+  const setUser = (user: User) => {
+    setUserState(user);
+    localStorage.setItem('user', JSON.stringify(user));
+  };
+
+  // Optional: logout function
+  const logout = () => {
+    setUserState(null);
+    localStorage.removeItem('user');
+  };
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
