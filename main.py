@@ -256,7 +256,7 @@ async def subscribe_user(data: SubscriptionRequest):
 
 
 
-@app.post("/webhook", include_in_schema=False)
+@app.post("/api/webhook", include_in_schema=False)
 async def stripe_webhook(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
