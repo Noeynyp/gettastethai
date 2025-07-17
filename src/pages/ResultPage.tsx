@@ -443,7 +443,6 @@ const ResultPage = () => {
           </a>
         </div>
       )}
-
     </div>
   );
 };
