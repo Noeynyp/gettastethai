@@ -31,7 +31,6 @@ const ResultPage = () => {
 
   const [scores, setScores] = useState<number[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
 
   const resultRef = useRef<HTMLDivElement>(null);
@@ -67,23 +66,6 @@ const ResultPage = () => {
     };
 
     fetchResult();
-  }, [email]);
-
-  // Fetch subscription
-  useEffect(() => {
-    if (!email) return;
-
-    const fetchSubscription = async () => {
-      try {
-        const response = await fetch(`/api/subscription-status?email=${email}`);
-        const data = await response.json();
-        setIsSubscribed(data.subscribed);
-      } catch (err) {
-        console.error("Failed to fetch subscription status", err);
-      }
-    };
-
-    fetchSubscription();
   }, [email]);
 
   // Upload image after results available
@@ -305,90 +287,11 @@ const ResultPage = () => {
         </div>
       </div>
 
-      {/* Always show buttons, but blur and disable if not subscribed */}
-      <div style={{ filter: isSubscribed ? 'none' : 'blur(2px)', pointerEvents: isSubscribed ? 'auto' : 'none', opacity: isSubscribed ? 1 : 0.5 }}>
-        <button
-          onClick={() => navigate('/guidelines', { state: { customerProfile } })}
-          style={{
-            background: '#910811',
-            color: 'white',
-            border: 'none',
-            borderRadius: '15px',
-            padding: '12px 24px',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            cursor: isSubscribed ? 'pointer' : 'not-allowed',
-            width: '100%',
-            maxWidth: '420px',
-            margin: '16px auto 8px',
-            display: 'block'
-          }}
-          disabled={!isSubscribed}
-        >
-          See Guidelines
-        </button>
-
-        <button
-          onClick={handleDownloadImage}
-          style={{
-            background: '#444',
-            color: 'white',
-            border: 'none',
-            borderRadius: '15px',
-            padding: '12px 24px',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            cursor: isSubscribed ? 'pointer' : 'not-allowed',
-            width: '100%',
-            maxWidth: '420px',
-            margin: '0 auto 8px',
-            display: 'block'
-          }}
-          disabled={!isSubscribed}
-        >
-          Download as Image
-        </button>
-      </div>
-
-      {/* Subscription management */}
       <button
-        onClick={async () => {
-          if (isSubscribed) {
-            alert("Open Manage Subscription Modal");
-            return;
-          }
-
-          if (!email) {
-            alert("Missing email. Please log in again.");
-            return;
-          }
-
-          const plan = "monthly"; // or "yearly", you can add UI toggle later
-
-          try {
-            console.log("Using backendBaseUrl:", backendBaseUrl);
-            const response = await fetch(`${backendBaseUrl}/api/create-checkout-session`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, plan }),
-            });
-
-            const data = await response.json();
-
-            if (data.checkout_url) {
-              window.location.href = data.checkout_url;
-            } else {
-              alert("Failed to start checkout session.");
-            }
-          } catch (error) {
-            console.error("Error creating checkout session", error);
-            alert("Network error. Try again.");
-          }
-        }}
-
+        onClick={() => navigate('/guidelines', { state: { customerProfile } })}
         style={{
-          background: isSubscribed ? '#ccc' : '#910811',
-          color: isSubscribed ? '#222' : 'white',
+          background: '#910811',
+          color: 'white',
           border: 'none',
           borderRadius: '15px',
           padding: '12px 24px',
@@ -397,12 +300,33 @@ const ResultPage = () => {
           cursor: 'pointer',
           width: '100%',
           maxWidth: '420px',
-          margin: '12px auto 20px',
+          margin: '16px auto 8px',
           display: 'block'
         }}
       >
-        {isSubscribed ? 'Manage Subscription' : 'Unlock Premium Features'}
+        See Guidelines
       </button>
+
+      <button
+        onClick={handleDownloadImage}
+        style={{
+          background: '#444',
+          color: 'white',
+          border: 'none',
+          borderRadius: '15px',
+          padding: '12px 24px',
+          fontSize: '1rem',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          width: '100%',
+          maxWidth: '420px',
+          margin: '0 auto 8px',
+          display: 'block'
+        }}
+      >
+        Download as Image
+      </button>
+
 
       <button
         onClick={() => navigate('/assessment')}

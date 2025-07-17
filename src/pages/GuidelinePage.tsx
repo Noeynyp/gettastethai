@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import StarIcon from '@mui/icons-material/Star';
 import { useUser } from '../contexts/UserContext';
 
@@ -59,6 +59,26 @@ const GuidelinesPage = () => {
   const [chatHistory, setChatHistory] = useState<{ sender: 'user' | 'ai'; text: string }[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const email = user?.email;
+  const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!email) return;
+      try {
+        const response = await fetch(`/api/subscription-status?email=${email}`);
+        const data = await response.json();
+        setIsSubscribed(data.subscribed);
+      } catch (err) {
+        console.error("Failed to fetch subscription status", err);
+      }
+    };
+
+    fetchSubscription();
+  }, [email]);
+
+
 
   const downloadPDF = () => {
     const doc = new jsPDF();
@@ -197,12 +217,187 @@ const GuidelinesPage = () => {
           </div>
         </div>
 
-        <button onClick={downloadPDF} style={{ backgroundColor: '#910811', color: 'white', border: 'none', borderRadius: '35px', padding: '14px 30px', fontSize: '1.2rem', fontWeight: 'bold', marginTop: '40px', width: '100%', maxWidth: '420px', cursor: 'pointer' }}>Download Report</button>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px',
+          marginTop: '40px'
+        }}>
+          {/* Download Report */}
+          <div
+            style={{ position: 'relative', width: '100%', maxWidth: '420px' }}
+            onMouseEnter={(e) => {
+              if (!isSubscribed) {
+                const tooltip = e.currentTarget.querySelector('.tooltip') as HTMLElement;
+                if (tooltip) tooltip.style.opacity = '1';
+              }
+            }}
+            onMouseLeave={(e) => {
+              const tooltip = e.currentTarget.querySelector('.tooltip') as HTMLElement;
+              if (tooltip) tooltip.style.opacity = '0';
+            }}
+          >
+            <button
+              onClick={() => {
+                if (!isSubscribed) return;
+                downloadPDF();
+              }}
+              style={{
+                backgroundColor: '#910811',
+                color: 'white',
+                border: 'none',
+                borderRadius: '35px',
+                padding: '14px 30px',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                width: '100%',
+                cursor: isSubscribed ? 'pointer' : 'not-allowed',
+                opacity: isSubscribed ? 1 : 0.4,
+                filter: isSubscribed ? 'none' : 'blur(0.5px)'
+              }}
+            >
+              Download Report
+            </button>
+            {!isSubscribed && (
+              <div className="tooltip" style={{
+                position: 'absolute',
+                top: '-28px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#333',
+                color: 'white',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                zIndex: 2
+              }}>
+                Subscription feature
+              </div>
+            )}
+          </div>
+
+          {/* Consult AI */}
+          <div
+            style={{ position: 'relative', width: '100%', maxWidth: '420px' }}
+            onMouseEnter={(e) => {
+              if (!isSubscribed) {
+                const tooltip = e.currentTarget.querySelector('.tooltip') as HTMLElement;
+                if (tooltip) tooltip.style.opacity = '1';
+              }
+            }}
+            onMouseLeave={(e) => {
+              const tooltip = e.currentTarget.querySelector('.tooltip') as HTMLElement;
+              if (tooltip) tooltip.style.opacity = '0';
+            }}
+          >
+            <button
+              onClick={() => {
+                if (!isSubscribed) return;
+                setAiModalOpen(true);
+              }}
+              style={{
+                backgroundColor: '#910811',
+                color: 'white',
+                border: 'none',
+                borderRadius: '35px',
+                padding: '14px 30px',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                width: '100%',
+                cursor: isSubscribed ? 'pointer' : 'not-allowed',
+                opacity: isSubscribed ? 1 : 0.4,
+                filter: isSubscribed ? 'none' : 'blur(0.5px)'
+              }}
+            >
+              Consult AI
+            </button>
+            {!isSubscribed && (
+              <div className="tooltip" style={{
+                position: 'absolute',
+                top: '-28px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#333',
+                color: 'white',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                zIndex: 2
+              }}>
+                Subscription feature
+              </div>
+            )}
+          </div>
+
+          {/* Subscription Button (always enabled) */}
+          <button
+            onClick={async () => {
+              if (isSubscribed) {
+                alert("Open Manage Subscription Modal");
+                return;
+              }
+
+              if (!email) {
+                alert("Missing email. Please log in again.");
+                return;
+              }
+
+              const plan = "monthly"; // or "yearly"
+
+              try {
+                console.log("Using backendBaseUrl:", backendBaseUrl);
+                const response = await fetch(`${backendBaseUrl}/api/create-checkout-session`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email, plan }),
+                });
+
+                const data = await response.json();
+
+                if (data.checkout_url) {
+                  window.location.href = data.checkout_url;
+                } else {
+                  alert("Failed to start checkout session.");
+                }
+              } catch (error) {
+                console.error("Error creating checkout session", error);
+                alert("Network error. Try again.");
+              }
+            }}
+            style={{
+              backgroundColor: isSubscribed ? '#aaa' : '#910811',
+              color: 'white',
+              border: 'none',
+              borderRadius: '35px',
+              padding: '14px 30px',
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              width: '100%',
+              maxWidth: '420px',
+              cursor: 'pointer',
+              opacity: isSubscribed ? 0.8 : 1,
+              filter: isSubscribed ? 'grayscale(30%)' : 'none'
+            }}
+          >
+            {isSubscribed ? 'Manage Subscription' : 'Unlock Premium Features'}
+          </button>
+        </div>
+
+
+
+
+
       </div>
 
-      <button onClick={() => setAiModalOpen(true)} style={{ position: 'fixed', bottom: 20, right: 20, backgroundColor: '#910811', color: 'white', border: 'none', borderRadius: '50%', padding: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer' }}>
-        <StarIcon />
-      </button>
 
       {aiModalOpen && (
         <div style={{
