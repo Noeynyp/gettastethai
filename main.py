@@ -341,3 +341,4 @@ class SPAFallbackMiddleware(BaseHTTPMiddleware):
         return response
 
 app.add_middleware(SPAFallbackMiddleware)
+

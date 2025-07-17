@@ -35,11 +35,9 @@ export default function FullSurveyPage() {
   const { user } = useUser(); // Get email from context
 
   const [form, setForm] = useState({
-    restaurantName: '',
     managerName: '',
     province: '',
     phone: '',
-    email: '',
     website: '',
     description: '',
     businessType: '',
@@ -54,7 +52,6 @@ export default function FullSurveyPage() {
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!form.restaurantName) newErrors.restaurantName = 'Required';
     if (!form.managerName) newErrors.managerName = 'Required';
     if (!form.province) newErrors.province = 'Required';
     if (!form.businessType) newErrors.businessType = 'Required';
@@ -130,17 +127,6 @@ export default function FullSurveyPage() {
       </Typography>
 
       <TextField
-        name="restaurantName"
-        label="Restaurant Name *"
-        fullWidth
-        margin="normal"
-        value={form.restaurantName}
-        onChange={handleChange}
-        error={!!errors.restaurantName}
-        helperText={errors.restaurantName}
-      />
-
-      <TextField
         name="managerName"
         label="Owner/Manager Name *"
         fullWidth
@@ -206,14 +192,7 @@ export default function FullSurveyPage() {
         value={form.phone}
         onChange={handleChange}
       />
-      <TextField
-        name="email"
-        label="Email Address"
-        fullWidth
-        margin="normal"
-        value={form.email}
-        onChange={handleChange}
-      />
+
       <TextField
         name="website"
         label="Website URL"
