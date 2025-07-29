@@ -499,62 +499,6 @@ const GuidelinesPage = () => {
 
             </div>
 
-            {/* File Upload */}
-            <div style={{ padding: '12px 20px', backgroundColor: '#f8f8f8', borderBottom: '1px solid #eee' }}>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImage(e.target.files?.[0] || null)}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '2px dashed #ccc',
-                  borderRadius: 8,
-                  backgroundColor: 'white',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer'
-                }}
-              />
-             {image && (
-                <div style={{ marginTop: 8, position: 'relative', width: 100, height: 100 }}>
-                    <img
-                    src={URL.createObjectURL(image)}
-                    alt="preview"
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: 12,
-                        border: '1px solid #ccc'
-                    }}
-                    />
-                    <button
-                    onClick={() => setImage(null)}
-                    style={{
-                        position: 'absolute',
-                        top: -6,
-                        right: -6,
-                        width: 22,
-                        height: 22,
-                        borderRadius: '50%',
-                        border: 'none',
-                        backgroundColor: '#910811',
-                        color: 'white',
-                        fontSize: '0.75rem',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                    >
-                    ✕
-                    </button>
-                </div>
-                )}
-
-            </div>
-
             {/* Chat Area */}
             <div style={{
               flex: 1,
@@ -615,6 +559,62 @@ const GuidelinesPage = () => {
                   AI is typing...
                 </div>
               )}
+            </div>
+
+            {/* File Upload */}
+            <div style={{ padding: '12px 20px', backgroundColor: '#f8f8f8', borderBottom: '1px solid #eee' }}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImage(e.target.files?.[0] || null)}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '2px dashed #ccc',
+                  borderRadius: 8,
+                  backgroundColor: 'white',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer'
+                }}
+              />
+             {image && (
+                <div style={{ marginTop: 8, position: 'relative', width: 100, height: 100 }}>
+                    <img
+                    src={URL.createObjectURL(image)}
+                    alt="preview"
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: 12,
+                        border: '1px solid #ccc'
+                    }}
+                    />
+                    <button
+                    onClick={() => setImage(null)}
+                    style={{
+                        position: 'absolute',
+                        top: -6,
+                        right: -6,
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        border: 'none',
+                        backgroundColor: '#910811',
+                        color: 'white',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    >
+                    ✕
+                    </button>
+                </div>
+                )}
+
             </div>
 
             {/* Input */}
