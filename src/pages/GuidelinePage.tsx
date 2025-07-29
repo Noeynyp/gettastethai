@@ -56,7 +56,7 @@ const GuidelinesPage = () => {
   const { mustHave, niceToHave } = guidelinesData[profile];
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
-  const [chatHistory, setChatHistory] = useState<{ sender: 'user' | 'ai'; text: string }[]>([]);
+  const [chatHistory, setChatHistory] = useState<{ sender: 'user' | 'ai'; text?: string; imageUrl?: string }[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const email = user?.email;
@@ -150,12 +150,28 @@ const GuidelinesPage = () => {
 
   const handleAIRequest = async () => {
     if (!image && !chatInput.trim()) return;
+
     if (!user?.email) {
-      setChatHistory((prev) => [...prev, { sender: 'ai', text: 'User email not found. Please log in again.' }]);
-      return;
+        setChatHistory((prev) => [
+        ...prev,
+        { sender: 'ai', text: 'User email not found. Please log in again.' }
+        ]);
+        return;
     }
+
     const question = chatInput;
-    setChatHistory((prev) => [...prev, { sender: 'user', text: question }]);
+    const imagePreviewUrl = image ? URL.createObjectURL(image) : undefined;
+
+    // Append user message (with optional image preview)
+    setChatHistory((prev) => [
+        ...prev,
+        {
+        sender: 'user',
+        text: question || '',
+        imageUrl: imagePreviewUrl
+        }
+    ]);
+
     setChatInput('');
     setLoading(true);
 
@@ -166,18 +182,28 @@ const GuidelinesPage = () => {
     if (image) formData.append('files', image);
 
     try {
-      const res = await fetch('/api/ask-ai', {
+        const res = await fetch('/api/ask-ai', {
         method: 'POST',
         body: formData,
-      });
-      const data = await res.text();
-      setChatHistory((prev) => [...prev, { sender: 'ai', text: data }]);
+        });
+
+        const data = await res.text();
+
+        setChatHistory((prev) => [
+        ...prev,
+        { sender: 'ai', text: data }
+        ]);
     } catch {
-      setChatHistory((prev) => [...prev, { sender: 'ai', text: 'Network error. Please try again.' }]);
+        setChatHistory((prev) => [
+        ...prev,
+        { sender: 'ai', text: 'Network error. Please try again.' }
+        ]);
     } finally {
-      setLoading(false);
+        setLoading(false);
+        setImage(null); // reset image after sending
     }
-  };
+    };
+
 
   return (
     <div style={{ background: '#fff', minHeight: '100vh', padding: '30px 5vw', fontFamily: 'system-ui', position: 'relative' }}>
@@ -489,18 +515,44 @@ const GuidelinesPage = () => {
                   cursor: 'pointer'
                 }}
               />
-              {image && (
-                <div style={{
-                  marginTop: 8,
-                  padding: '6px 12px',
-                  backgroundColor: '#e8f5e8',
-                  borderRadius: 6,
-                  fontSize: '0.85rem',
-                  color: '#2d5a2d'
-                }}>
-                  📎 {image.name}
+             {image && (
+                <div style={{ marginTop: 8, position: 'relative', width: 100, height: 100 }}>
+                    <img
+                    src={URL.createObjectURL(image)}
+                    alt="preview"
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: 12,
+                        border: '1px solid #ccc'
+                    }}
+                    />
+                    <button
+                    onClick={() => setImage(null)}
+                    style={{
+                        position: 'absolute',
+                        top: -6,
+                        right: -6,
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        border: 'none',
+                        backgroundColor: '#910811',
+                        color: 'white',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    >
+                    ✕
+                    </button>
                 </div>
-              )}
+                )}
+
             </div>
 
             {/* Chat Area */}
@@ -526,16 +578,30 @@ const GuidelinesPage = () => {
                 }}>
                   <div style={{
                     maxWidth: '75%',
-                    padding: '10px 14px',
                     borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                     backgroundColor: msg.sender === 'user' ? '#910811' : 'white',
                     color: msg.sender === 'user' ? 'white' : '#333',
                     fontSize: '0.9rem',
                     whiteSpace: 'pre-wrap',
-                    boxShadow: msg.sender === 'ai' ? '0 1px 5px rgba(0,0,0,0.05)' : 'none'
-                  }}>
+                    boxShadow: msg.sender === 'ai' ? '0 1px 5px rgba(0,0,0,0.05)' : 'none',
+                    padding: msg.text ? '10px 14px' : '0',
+                    overflow: 'hidden'
+                    }}>
+                    {msg.imageUrl && (
+                        <img
+                        src={msg.imageUrl}
+                        alt="sent"
+                        style={{
+                            maxWidth: '100%',
+                            height: 'auto',
+                            borderRadius: 12,
+                            marginBottom: msg.text ? 6 : 0
+                        }}
+                        />
+                    )}
                     {msg.text}
-                  </div>
+                    </div>
+
                 </div>
               ))}
 
