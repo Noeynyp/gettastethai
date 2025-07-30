@@ -173,6 +173,7 @@ const GuidelinesPage = () => {
     ]);
 
     setChatInput('');
+    setImage(null); // reset image after sending
     setLoading(true);
 
     const formData = new FormData();
@@ -200,7 +201,6 @@ const GuidelinesPage = () => {
         ]);
     } finally {
         setLoading(false);
-        setImage(null); // reset image after sending
     }
     };
 
