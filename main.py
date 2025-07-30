@@ -42,8 +42,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-# openai_client = ""
+# openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai_client = ""
 
 def hash_password(password: str):
     return pwd_context.hash(password)
