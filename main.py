@@ -17,13 +17,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import List, Optional
 import base64
+import json
 from openai import OpenAI
 from openai import AuthenticationError, RateLimitError, APIConnectionError, OpenAIError
-
-
-from starlette.staticfiles import StaticFiles
-
-
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import FileResponse
 
 # Load environment variables.
 load_dotenv()
@@ -36,14 +34,12 @@ client = AsyncIOMotorClient(MONGO_URI)
 db = client["getauthenticdb"]
 users_collection = db["users"]
 
-
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-# openai_client = ""
 
 def hash_password(password: str):
     return pwd_context.hash(password)
@@ -72,8 +68,8 @@ async def signup(req: SignUpRequest):
         "email": req.email,
         "password": hash_password(req.password),
         "is_verified": False,
-        "verification_token": verification_token,
-        "chat_history": []
+        "verification_token": verification_token
+        # NOTE: no chat_history here anymore
     }
     await users_collection.insert_one(user_data)
 
@@ -82,7 +78,6 @@ async def signup(req: SignUpRequest):
     receiver_email = req.email
     password = os.getenv("EMAIL_APP_PASSWORD")  # Use app password for Gmail
     verification_link = f"https://getauthenticthai-dkfhdbg5f3amd7fu.southeastasia-01.azurewebsites.net/api/verify-email?token={verification_token}&email={req.email}"
-
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Verify your email for GET Authentic Thai"
@@ -137,10 +132,6 @@ async def login(req: LoginRequest):
         "profile_completed": profile_completed
     }
 
-
-
-from schemas import ProfileUpdate
-
 @app.post("/api/profile-update")
 async def profile_update(req: ProfileUpdate):
     user = await users_collection.find_one({"email": req.contact_email})
@@ -170,6 +161,7 @@ async def upload_result(
         raise HTTPException(status_code=404, detail="User not found")
 
     filename = f"{uuid.uuid4()}.png"
+    os.makedirs("uploaded_images", exist_ok=True)
     filepath = os.path.join("uploaded_images", filename)
 
     with open(filepath, "wb") as buffer:
@@ -178,13 +170,19 @@ async def upload_result(
 
     image_url = f"/uploaded_images/{filename}"
 
-    # Save score + result
+    # Save score + result (use json.loads instead of eval)
+    try:
+        scores_list = json.loads(scores)
+        categories_list = json.loads(categories)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid scores or categories format. Must be JSON arrays.")
+
     await users_collection.update_one(
         {"email": email},
         {"$set": {
             "quiz_result": {
-                "scores": eval(scores),  # List of numbers
-                "categories": eval(categories),
+                "scores": scores_list,
+                "categories": categories_list,
                 "profile_type": profile_type,
                 "result_image_url": image_url
             }
@@ -192,35 +190,6 @@ async def upload_result(
     )
 
     return JSONResponse(content={"success": True, "url": image_url})
-
-    
-
-# @app.post("/api/upload-result-image")
-# async def upload_result_image(
-#     file: UploadFile = File(...),
-#     email: str = Form(...)
-# ):
-#     user = await users_collection.find_one({"email": email})
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     # Save image with unique filename
-#     filename = f"{uuid.uuid4()}.png"
-#     filepath = os.path.join("uploaded_images", filename)
-
-#     with open(filepath, "wb") as buffer:
-#         content = await file.read()
-#         buffer.write(content)
-
-#     image_url = f"/uploaded_images/{filename}"
-
-#     # Update user's record
-#     await users_collection.update_one(
-#         {"email": email},
-#         {"$set": {"result_image_url": image_url}}
-#     )
-
-#     return JSONResponse(content={"success": True, "url": image_url}).
 
 @app.get("/api/quiz-result")
 async def get_quiz_result(email: str):
@@ -235,14 +204,12 @@ async def get_quiz_result(email: str):
         "profile_type": user["quiz_result"]["profile_type"]
     }
 
-
 @app.get("/api/subscription-status")
 async def check_subscription(email: str):
     user = await users_collection.find_one({"email": email})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"subscribed": user.get("subscribed", False)}
-
 
 @app.post("/api/subscribe")
 async def subscribe_user(data: SubscriptionRequest):
@@ -256,8 +223,6 @@ async def subscribe_user(data: SubscriptionRequest):
     )
 
     return {"success": True, "message": "Subscription activated"}
-
-
 
 @app.post("/api/webhook", include_in_schema=False)
 async def stripe_webhook(request: Request):
@@ -289,12 +254,11 @@ async def stripe_webhook(request: Request):
             {"stripe_customer_id": customer_id},
             {"$set": {
                 "subscribed": True,
-                "subscription_type": "monthly"  # or 'yearly', you can enhance later
+                "subscription_type": "monthly"  # or 'yearly'
             }}
         )
 
     return Response(status_code=200)
-
 
 @app.post("/api/create-checkout-session")
 async def create_checkout_session(data: SubscriptionRequest):
@@ -314,7 +278,7 @@ async def create_checkout_session(data: SubscriptionRequest):
 
     # Define your real price IDs from Stripe dashboard
     price_id = {
-        "monthly": "price_1RlYI4GarNGWe9gLUr0dc7QH",  # replace with actual Stripe price ID
+        "monthly": "price_1RlYI4GarNGWe9gLUr0dc7QH",
         "yearly": "price_1RlYKBGarNGWe9gLYjdarYLt"
     }.get(data.plan)
 
@@ -335,9 +299,6 @@ async def create_checkout_session(data: SubscriptionRequest):
 
     return {"checkout_url": session.url}
 
-
-import traceback
-
 @app.post("/api/ask-ai")
 async def ask_ai(
     email: str = Form(...),
@@ -345,6 +306,7 @@ async def ask_ai(
     question: str = Form(...),
     files: Optional[List[UploadFile]] = File(None)
 ):
+    # Only verify the user exists; do NOT load or save chat history
     user = await users_collection.find_one({"email": email})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -393,7 +355,7 @@ async def ask_ai(
     if not profile:
         raise HTTPException(status_code=400, detail="Invalid profile type.")
 
-    # Convert images to base64
+    # Convert images to base64 (only for sending to OpenAI — not stored)
     base64_images = []
     if files:
         for file in files:
@@ -404,7 +366,7 @@ async def ask_ai(
                 "image_url": {"url": f"data:image/jpeg;base64,{base64_str}"}
             })
 
-    # Prepare system and user messages
+    # Prepare system and user messages (stateless; no history)
     system_prompt = {
         "role": "system",
         "content": (
@@ -414,7 +376,6 @@ async def ask_ai(
         )
     }
 
-    # Profile context
     guideline_context = f"""
 My restaurant profile is: {profile_type}
 
@@ -427,15 +388,13 @@ Nice to Have:
 {question}
 """
 
-    # Restore previous chat history
-    history = user.get("chat_history", [])
-    messages = [system_prompt] + history
-
-    # Add new user message
-    messages.append({
-        "role": "user",
-        "content": [{"type": "text", "text": guideline_context}] + base64_images
-    })
+    messages = [
+        system_prompt,
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": guideline_context}] + base64_images
+        }
+    ]
 
     try:
         res = openai_client.chat.completions.create(
@@ -444,16 +403,8 @@ Nice to Have:
             max_tokens=300
         )
         reply = res.choices[0].message
+        return PlainTextResponse((reply.content or "").strip())
 
-        # Save new history (with latest response)
-        updated_history = messages + [reply.model_dump()]
-        await users_collection.update_one(
-            {"email": email},
-            {"$set": {"chat_history": updated_history}}
-        )
-
-        return PlainTextResponse(reply.content.strip())
-    
     except AuthenticationError:
         raise HTTPException(status_code=401, detail="Invalid or missing OpenAI API key.")
     except RateLimitError:
@@ -466,30 +417,17 @@ Nice to Have:
         print("Unexpected Error:", e)
         raise HTTPException(status_code=500, detail="Unexpected error occurred while getting AI suggestion.")
 
-
-
-
 # Serve frontend
 app.mount("/", StaticFiles(directory="dist", html=True), name="static")
-
-
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import FileResponse
-from starlette.requests import Request
-import os
 
 class SPAFallbackMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
-        
         # Only fallback if it's a 404 and NOT an API or static file request
         if response.status_code == 404 and not request.url.path.startswith("/api") and "." not in request.url.path:
             index_path = os.path.join("dist", "index.html")
             if os.path.exists(index_path):
                 return FileResponse(index_path)
-        
         return response
-        
 
 app.add_middleware(SPAFallbackMiddleware)
-
